@@ -17,13 +17,26 @@
                            must not exceed 1.0 (arithmetic, not
                            judgement).
     5. material grade    — the proposed grade must be a member of the
-                           structure's registered approved-grades set
-                           (no invented or unapproved material).
+                           structure's registered approved-grades set.
+    6. statutory limits  — a structure that elects the Article 93 ground
+                           table, or declares an Article 90 reinforcement
+                           type, is bound by the values those tables fix
+                           (`civileng.facts`). Rules 1-5 all check the
+                           proposal against numbers the OPERATOR registered;
+                           this one checks the registration itself against
+                           statute, which is why it is here and not in the
+                           advisor.
+  Rule 5 is membership in a registered set, and that is all it is. It was
+  once described as excluding invented material; it does not, because the set
+  it consults is operator-supplied. Rule 6 is what constrains the
+  registrations, and it does so only where a statute fixes a number.
+
   ESCALATION invariants (:escalate? true, human sign-off):
     6. :op :approve-occupancy (issuing an occupancy/safety
                            certificate).
     7. low confidence (< `confidence-floor`)."
-  (:require [civileng.store :as store]))
+  (:require [civileng.facts :as facts]
+            [civileng.store :as store]))
 
 (def confidence-floor 0.6)
 
@@ -52,7 +65,12 @@
       (and design? s grade (not (contains? (:approved-grades s) grade)))
       (conj {:rule :unapproved-grade
              :detail (str "材料等級 " grade " は登録済み承認集合 "
-                          (:approved-grades s) " の外")}))))
+                          (:approved-grades s) " の外")})
+
+      ;; Statutory ceilings last: they are about the structure's REGISTRATION,
+      ;; so they stay meaningful even when the proposal itself is unremarkable.
+      true
+      (into (facts/statutory-violations s proposal)))))
 
 (defn check
   "Assess a proposal against `request`/`context`/`proposal` and a
