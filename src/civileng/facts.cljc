@@ -45,7 +45,7 @@
   Every function here returns a vector of `{:rule .. :detail ..}` maps — empty
   means conforming — so violations compose with the Governor's own rules
   without a second shape."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def order-citation
   "Provenance for every value in this namespace. Carried as data so a caller
